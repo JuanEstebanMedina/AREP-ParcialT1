@@ -74,7 +74,7 @@ public class BackendHost {
                 for (String s : parameters) {
                     NUMB_LIST.add(Double.valueOf(s));
                 }
-                return statusOk("{ \"status\" : \"OK\", \"added\": " + Arrays.toString(parameters) + "\"count\": " + NUMB_LIST.size() + " }");
+                return statusOk("{ \"status\" : \"OK\", \"added\": " + Arrays.toString(parameters) + ", \"count\": " + NUMB_LIST.size() + " }");
             }
             case "/list" -> {
                 if (!NUMB_LIST.isEmpty()) {
@@ -88,7 +88,8 @@ public class BackendHost {
                 return statusOk("{ \"status\" : \"OK\", \"message\": list_cleared }");
             }
             case "/stats" -> {
-                if (!NUMB_LIST.isEmpty()) {
+                if (!NUMB_LIST.isEmpty() || NUMB_LIST.size() > 1) {
+                    // double stddev = NUMB_LIST.size() > 1? stddev(): null;
                     return statusOk("{ \"status\" : \"OK\", \"mean\": " + mean() + ", \"stddev\": " + stddev() + ", \"count\": " + NUMB_LIST.size() + " }");
                 } else {
                     return errorStatus("409 conflict", "{ \"status\" : \"ERR\", \"error\": empty_list }");

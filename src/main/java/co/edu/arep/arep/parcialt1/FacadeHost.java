@@ -51,7 +51,7 @@ public class FacadeHost {
                 System.out.println("inputLine.startsWith(\"/api\") " + inputLine.startsWith("/api"));
                 if (inputLine.startsWith("/api")) {
                     try {
-                        httpConnection(inputLine);
+                        outputLine = httpConnection(inputLine);
                     } catch (ConnectException e) {
                         outputLine = failedConnection();
                     }
@@ -59,6 +59,7 @@ public class FacadeHost {
                     outputLine = webClient();
                 }
             }
+            System.out.println("outputLine: " + outputLine);
             out.println(outputLine);
             out.close();
             in.close();
@@ -68,13 +69,13 @@ public class FacadeHost {
         serverSocket.close();
     }
 
-    public static void httpConnection(String path) throws IOException {
-        
+    public static String httpConnection(String path) throws IOException {
+        String outputLine = "";
         URL obj = new URL(GET_URL + path);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("User-Agent", USER_AGENT);
-        
+
         System.out.println("con? " + con);
 
         //The following invocation perform the connection implicitly before getting the code
@@ -92,12 +93,24 @@ public class FacadeHost {
             }
             in.close();
 
+            System.out.println("response" + response);
+
             // print result
             System.out.println(response.toString());
+            outputLine = response.toString();
         } else {
             System.out.println("GET request not worked");
         }
         System.out.println("GET DONE");
+        return statusOk() + outputLine;
+    }
+
+    private static String statusOk() {
+        return """
+               HTTP/1.1 200 OK\r
+               Content-Type: application/json\r
+               \r
+               """;
     }
 
     private static String failedConnection() {
