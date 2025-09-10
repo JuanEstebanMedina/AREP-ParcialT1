@@ -37,9 +37,7 @@ Asegúrate de tener instalado lo siguiente:
     ```
     Inicializa en "http://localhost:36000"
 
-#### Video de prueba ejecución
-
-#### Video
+### Video de prueba ejecución
 
 Se puede ver el video de demostración en el archivo [AREP-ParcialT1-video.mp4](./AREP-ParcialT1-video.mp4).
 
