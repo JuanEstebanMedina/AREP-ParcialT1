@@ -4,9 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ConnectException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 /**
@@ -15,7 +15,7 @@ import java.util.LinkedList;
  */
 public class BackendHost {
 
-    private static final LinkedList<Double> NUMB_LIST = null;
+    private static final LinkedList<Double> NUMB_LIST = new LinkedList<>();
 
     public static void main(String[] args) throws IOException {
         ServerSocket serverSocket = null;
@@ -47,8 +47,12 @@ public class BackendHost {
                 System.out.println("Recibi: " + inputLine);
                 inputLine = inputLine.split(" ")[1];
                 System.out.println("inputLine.startsWith(\"/api\") " + inputLine.startsWith("/api"));
-                
-                outputLine = processRequest(inputLine);
+
+                if (inputLine.startsWith("/api")) {
+                    outputLine = processRequest(inputLine);
+                } else {
+                    outputLine = notFound();
+                }
             }
             out.println(outputLine);
             out.close();
@@ -59,14 +63,60 @@ public class BackendHost {
     }
 
     private static String processRequest(String inputLine) {
-        String path = inputLine.substring(4);
-        switch (path){
-            case "/add":
-                Numbers.add();
+        String[] split = inputLine.split("\\?");
+        String path = split[0].substring(4);
+        System.out.println("path: " + path);
+                
+        switch (path) {
+            case "/add" -> {
+                String temp = split[1].split("=")[1];
+                String[] parameters = temp.split(",");
+                for (String s : parameters) {
+                    NUMB_LIST.add(Double.valueOf(s));
+                }
+                return statusOk("{ \"status\" : \"OK\", \"added\": " + Arrays.toString(parameters) + "\"count\": " + NUMB_LIST.size() + " }");
+            }
+            case "/list" -> {
+                if (!NUMB_LIST.isEmpty()) {
+                    return statusOk("{ \"status\" : \"OK\", \"values\": " + NUMB_LIST + " }");
+                } else {
+                    return errorStatus("409 conflict", "{ \"status\" : \"ERR\", \"error\": empty_list }");
+                }
+            }
+            case "/clear" -> {
+                NUMB_LIST.clear();
+                return statusOk("{ \"status\" : \"OK\", \"message\": list_cleared }");
+            }
+            case "/stats" -> {
+                if (!NUMB_LIST.isEmpty()) {
+                    return statusOk("{ \"status\" : \"OK\", \"mean\": " + mean() + ", \"stddev\": " + stddev() + ", \"count\": " + NUMB_LIST.size() + " }");
+                } else {
+                    return errorStatus("409 conflict", "{ \"status\" : \"ERR\", \"error\": empty_list }");
+                }
+                
+            }
+            default -> {
+                return notFound();
+            }
         }
     }
-    
-    private static String notFount() {
+
+    private static String statusOk(String response) {
+        return """
+               HTTP/1.1 200 OK\r
+               Content-Type: application/json\r
+               \r
+               """ + response;
+    }
+
+    private static String errorStatus(String error, String response) {
+        return "HTTP/1.1 " + error + "\r\n"
+                + "Content-Type: application/json\r\n"
+                + "\r\n"
+                + response;
+    }
+
+    private static String notFound() {
         return """
                HTTP/1.1 404 Not Found\r
                Content-Type: application/json\r
@@ -75,5 +125,22 @@ public class BackendHost {
                "status": "ERR",
                "error": "resource not found"
                }""";
+    }
+
+    private static double mean() {
+        double result = 0;
+        for (double i : NUMB_LIST) {
+            result += i;
+        }
+        return result / NUMB_LIST.size();
+    }
+
+    private static double stddev() {
+        double mean = mean();
+        double result = 0;
+        for (double i : NUMB_LIST) {
+            result += Math.pow((i - mean), 2);
+        }
+        return Math.sqrt(result * (1 / (NUMB_LIST.size() - 1)));
     }
 }
