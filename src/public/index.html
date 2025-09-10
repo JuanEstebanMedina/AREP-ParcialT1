@@ -1,0 +1,96 @@
+HTTP/1.1 200 OK\r
+Content-Type: text/html\r
+\r
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Form Example</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <h1>Calculadora Web para estimar la media y la desviación estándar de un conjunto de números</h1>
+    <form action="/add">
+        <label for="add">Numeros a añadir</label><br>
+        <label>separados por coma (,)</label><br>
+        <input type="text" id="add" name="add" value="1,2,3,4"><br><br>
+        <input type="button" value="Submit" onclick="addRequest()">
+    </form><br>
+    <div id="addResponse"></div>
+
+    <script>
+        function addRequest() {
+            let addNumbers = document.getElementById("add").value;
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                document.getElementById("addResponse").innerHTML =
+                    this.responseText;
+            }
+            xhttp.open("GET", "/api/add?x=" + addNumbers);
+            xhttp.send();
+        }
+    </script>
+
+    <br><br>
+    <form action="/list">
+        <label for="list">Listar números</label><br>
+        <input type="button" value="Submit" onclick="listRequest()">
+    </form><br>
+    <div id="listResponse"></div>
+
+    <script>
+        function listRequest() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                document.getElementById("listResponse").innerHTML =
+                    this.responseText;
+            }
+            xhttp.open("GET", "/api/list");
+            xhttp.send();
+        }
+    </script>
+
+    <br><br>
+    <form action="/clear">
+        <label for="clear">Limpiar lista de números</label><br>
+        <input type="button" value="Submit" onclick="clearRequest()">
+    </form><br>
+    <div id="clearResponse"></div>
+
+    <script>
+        function clearRequest() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                document.getElementById("clearResponse").innerHTML =
+                    this.responseText;
+            }
+            xhttp.open("GET", "/api/clear");
+            xhttp.send();
+        }
+    </script>
+
+    <br><br>
+    <form action="/stats">
+        <label for="stats">Calcular media y desviación estándar</label><br>
+        <input type="button" value="Submit" onclick="statsRequest()">
+    </form><br>
+    <div id="statsResponse"></div>
+
+    <script>
+        function statsRequest() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onload = function () {
+                document.getElementById("statsResponse").innerHTML =
+                    this.responseText;
+            }
+            xhttp.open("GET", "/api/stats");
+            xhttp.send();
+        }
+    </script>
+
+
+</body>
+
+</html>
