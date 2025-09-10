@@ -88,7 +88,7 @@ public class BackendHost {
                 return statusOk("{ \"status\" : \"OK\", \"message\": list_cleared }");
             }
             case "/stats" -> {
-                if (!NUMB_LIST.isEmpty() || NUMB_LIST.size() > 1) {
+                if (!NUMB_LIST.isEmpty() && NUMB_LIST.size() > 1) {
                     // double stddev = NUMB_LIST.size() > 1? stddev(): null;
                     return statusOk("{ \"status\" : \"OK\", \"mean\": " + mean() + ", \"stddev\": " + stddev() + ", \"count\": " + NUMB_LIST.size() + " }");
                 } else {

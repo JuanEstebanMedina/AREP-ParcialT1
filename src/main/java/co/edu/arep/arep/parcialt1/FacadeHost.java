@@ -97,12 +97,13 @@ public class FacadeHost {
 
             // print result
             System.out.println(response.toString());
-            outputLine = response.toString();
+            outputLine = statusOk() + response.toString();
         } else {
             System.out.println("GET request not worked");
+            outputLine = internalServerError();
         }
         System.out.println("GET DONE");
-        return statusOk() + outputLine;
+        return outputLine;
     }
 
     private static String statusOk() {
@@ -121,6 +122,17 @@ public class FacadeHost {
                {
                "status": "ERR",
                "error": "backend_unreachable"
+               }""";
+    }
+    
+    private static String internalServerError(){
+        return """
+               HTTP/1.1 502 Internal Server Error\r
+               Content-Type: application/json\r
+               \r
+               {
+               "status": "ERR",
+               "error": "server_error"
                }""";
     }
 
